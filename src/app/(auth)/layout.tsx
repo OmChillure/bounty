@@ -10,6 +10,7 @@ const layout = ({ children }: { children: ReactNode }) => {
             </div>
         </div>
       
+      {/* Right Side */}
       <div className="h-full w-[46vw] relative sm:flex items-center justify-center hidden">
         <div className="absolute h-full w-full z-10">
           <Image
