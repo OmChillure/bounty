@@ -9,7 +9,8 @@ const layout = ({ children }: { children: ReactNode }) => {
                 {children}
             </div>
         </div>
-
+      
+      {/* comment */}
       <div className="h-full w-[46vw] relative sm:flex items-center justify-center hidden">
         <div className="absolute h-full w-full z-10">
           <Image
