@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      fontFamily: {
+        'bree': ['"Bree Serif"', 'serif'],
+        'exo2': ['"Exo 2"', 'sans-serif'],
+      },
     },
   },
   plugins: [],
