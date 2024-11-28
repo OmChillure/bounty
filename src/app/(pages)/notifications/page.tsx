@@ -163,7 +163,7 @@ function Page() {
         
         <div className="space-y-4">
           {/* <div className="w-16 h-16 border-t-4 border-white rounded-full animate-spin mx-auto"></div> */}
-          <p className="text-blue-200">We're working hard to bring you something special</p>
+          <p className="text-blue-200">We are working hard to bring you something special</p>
         </div>
       </div>
     </div>
