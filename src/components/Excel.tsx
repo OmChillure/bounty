@@ -136,7 +136,7 @@ export default function CreateExcelCampaign() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111827] p-6">
+    <div className="min-h-screen p-6">
       <div className="container mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-white">
           Create New Campaign

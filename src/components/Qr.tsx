@@ -10,12 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import Link from 'next/link'
+import { PersonDetailsForm } from './Personal-detail'
 
 export default function CreateCampaignForm() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [showPersonDetails, setShowPersonDetails] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -24,7 +26,9 @@ export default function CreateCampaignForm() {
     triggerType: 'QR',
     numberOfCodes: '5000',
     triggerText: '',
-    qrStyle: 'simple'
+    qrStyle: 'simple',
+    campaignType: '',
+    personDetails: null as { field1: string; field2: string; field3: string } | null,
   })
 
   useEffect(() => {
@@ -54,6 +58,10 @@ export default function CreateCampaignForm() {
     }))
   }
 
+  const handleOpenPersonDetails = () => {
+    setShowPersonDetails(true)
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
@@ -65,11 +73,17 @@ export default function CreateCampaignForm() {
       return
     }
 
-    const requiredFields = ['name', 'numberOfCodes', 'triggerText', 'qrStyle']
+    const requiredFields = ['name', 'numberOfCodes', 'triggerText', 'qrStyle', 'campaignType']
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData])
     
     if (missingFields.length > 0) {
       setError(`Required fields missing: ${missingFields.join(', ')}`)
+      setIsLoading(false)
+      return
+    }
+
+    if (formData.campaignType === 'digital-activation' && !formData.personDetails) {
+      setError('Person details are required for digital activation campaigns.')
       setIsLoading(false)
       return
     }
@@ -108,7 +122,9 @@ export default function CreateCampaignForm() {
         triggerType: '',
         numberOfCodes: '1000',
         triggerText: '',
-        qrStyle: ''
+        qrStyle: '',
+        campaignType: '',
+        personDetails: null,
       })
 
       router.push('/campaigns')
@@ -120,11 +136,11 @@ export default function CreateCampaignForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#111827] p-6">
-      <div className="container mx-auto">
-        <span className="text-2xl font-bold mb-6 text-white">Create New Campaign</span>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className=" p-6">
+      <div className="max-w-7xl">
+        <h1 className="text-2xl font-bold mb-6 text-white">Create New Campaign</h1>
+        <form onSubmit={handleSubmit} className="space-y-6 rounded-lg shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-gray-300">
                 Campaign Name <span className="text-red-500">*</span>
@@ -136,8 +152,30 @@ export default function CreateCampaignForm() {
                 onChange={handleChange}
                 placeholder="Enter campaign name"
                 required
-                className="bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+                className="w-full bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="campaignType" className="text-gray-300">
+                Campaign Type <span className="text-red-500">*</span>
+              </Label>
+              <Select 
+                value={formData.campaignType} 
+                onValueChange={(value) => handleSelectChange('campaignType', value)}
+              >
+                <SelectTrigger 
+                  id="campaignType"
+                  className="w-full bg-[#1f2937] border-gray-800 text-gray-100"
+                >
+                  <SelectValue placeholder="Select campaign type" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1f2937] border-gray-800">
+                  <SelectItem value="award" className="text-gray-100">Award</SelectItem>
+                  <SelectItem value="digital_activation" className="text-gray-100">Digital Activation</SelectItem>
+                  <SelectItem value="social_media" className="text-gray-100">Social Media</SelectItem>
+                  <SelectItem value="location_sharing" className="text-gray-100">Location Sharing</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="totalAmount" className="text-gray-300">Total Amount</Label>
@@ -148,7 +186,7 @@ export default function CreateCampaignForm() {
                 value={formData.totalAmount}
                 onChange={handleChange}
                 placeholder="Enter total amount"
-                className="bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+                className="w-full bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
               />
             </div>
             <div className="space-y-2">
@@ -159,7 +197,7 @@ export default function CreateCampaignForm() {
                 value={formData.tags}
                 onChange={handleChange}
                 placeholder="Enter tags (e.g., festive, holiday)"
-                className="bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+                className="w-full bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
               />
             </div>
           </div>
@@ -172,12 +210,12 @@ export default function CreateCampaignForm() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Enter campaign description"
-              className="min-h-[100px] bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+              className="w-full min-h-[100px] bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="triggerType" className="text-gray-300">
                 Trigger Type
               </Label>
@@ -185,7 +223,7 @@ export default function CreateCampaignForm() {
                 id="triggerType"
                 value="QR"
                 disabled
-                className="bg-[#1f2937] border-gray-700 text-white cursor-not-allowed opacity-70"
+                className="w-full bg-[#1f2937] border-gray-800 text-white cursor-not-allowed opacity-70"
               />
             </div>
             <div className="space-y-2">
@@ -200,7 +238,7 @@ export default function CreateCampaignForm() {
                 onChange={handleChange}
                 placeholder="Enter number of codes"
                 required
-                className="bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+                className="w-full bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
               />
             </div>
             <div className="space-y-2">
@@ -213,11 +251,11 @@ export default function CreateCampaignForm() {
               >
                 <SelectTrigger 
                   id="qrStyle"
-                  className="bg-[#1f2937] border-gray-700 text-gray-100"
+                  className="w-full bg-[#1f2937] border-gray-800 text-gray-100"
                 >
                   <SelectValue placeholder="Select QR style" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#1f2937] border-gray-700">
+                <SelectContent className="bg-[#1f2937] border-gray-800">
                   <SelectItem value="simple" className="text-gray-100">Simple</SelectItem>
                   <SelectItem value="stylized" className="text-gray-100">Stylized</SelectItem>
                 </SelectContent>
@@ -236,18 +274,30 @@ export default function CreateCampaignForm() {
               onChange={handleChange}
               placeholder="Enter message template"
               required
-              className="min-h-[80px] bg-[#1f2937] border-gray-700 text-gray-100 placeholder:text-gray-500"
+              className="w-full min-h-[80px] bg-[#1f2937] border-gray-800 text-gray-100 placeholder:text-gray-400"
             />
           </div>
 
+          {formData.campaignType === 'digital-activation' && (
+            <div className="space-y-2">
+              <Button
+                type="button"
+                onClick={handleOpenPersonDetails}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Add Personal Details
+              </Button>
+            </div>
+          )}
+
           {error && (
-            <div className='flex gap-5'>
-              <Alert variant="destructive" className="bg-red-900/50 border-red-800">
+            <div className='flex flex-col sm:flex-row gap-4 items-center'>
+              <Alert variant="destructive" className="bg-red-900/50 border-red-800 flex-grow">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription className="text-red-200">{error}</AlertDescription>
               </Alert>
-              <Button className='bg-white text-black w-20 h-15'>
-                <Link href={"/recharge"}>
+              <Button className='bg-white text-black w-full sm:w-auto'>
+                <Link href="/recharge">
                   Recharge
                 </Link>
               </Button>
@@ -256,7 +306,7 @@ export default function CreateCampaignForm() {
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold py-2 px-4 rounded-lg"
             disabled={isLoading || !companyId}
           >
             {isLoading ? (
@@ -270,6 +320,15 @@ export default function CreateCampaignForm() {
           </Button>
         </form>
       </div>
+      {showPersonDetails && (
+        <PersonDetailsForm
+          onSubmit={(details) => {
+            setFormData(prev => ({ ...prev, personDetails: details }))
+            setShowPersonDetails(false)
+          }}
+          onCancel={() => setShowPersonDetails(false)}
+        />
+      )}
     </div>
   )
 }
