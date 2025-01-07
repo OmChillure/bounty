@@ -1,11 +1,15 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useEffect } from "react";
 
 function page() {
+  const router = useRouter();
   const getQrDetailes = async () => {
+
+    const bountyCode = window.location.pathname.split("/").pop();
     const data = await fetch(
-      `https://7c63-2401-4900-1c9b-b6ae-d8a1-e8f8-d218-4e0.ngrok-free.app/api/code/${bountCode}`,
+      `http://localhost:5001/api/code/${bountyCode}`,
       {
         method: "GET",
         headers: {
@@ -14,6 +18,11 @@ function page() {
       }
     );
     const response = await data.json();
+    if(!response.action){
+      alert("Code Scan Successful")
+    }else{
+      router.push(response.redirectUrl);
+    }
     console.log(response);
   };
 

@@ -72,7 +72,7 @@ const Signup = () => {
 
       let response: Response;
       try {
-        response = await fetch("https://bounty.33solutions.dev/auth/signup", {
+        response = await fetch("http://localhost:5001/auth/signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

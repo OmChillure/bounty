@@ -97,7 +97,7 @@ export default function CreateCampaignForm() {
         tags: formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : []
       }
 
-      const response = await fetch('https://bounty.33solutions.dev/api/campaigns/create', {
+      const response = await fetch('http://localhost:5001/api/campaigns/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

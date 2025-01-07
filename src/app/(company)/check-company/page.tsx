@@ -23,7 +23,7 @@ const Page = () => {
         }
 
         setStatus('Verifying company information...');
-        const response = await fetch('https://bounty.33solutions.dev/api/companies', {
+        const response = await fetch('http://localhost:5001/api/companies', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

@@ -111,7 +111,7 @@ export default function CreateExcelCampaign() {
       }
 
       const response = await fetch(
-        "https://bounty.33solutions.dev/api/campaigns/create",
+        "http://localhost:5001/api/campaigns/create",
         {
           method: "POST",
           headers: {

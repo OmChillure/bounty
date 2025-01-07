@@ -76,7 +76,7 @@ const Page: React.FC = () => {
       console.log('Session token found:', sessionToken);
 
       // Send the session token to your backend
-      const response = await fetch('https://bounty.33solutions.dev/auth/google', {
+      const response = await fetch('http://localhost:5001/auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const Page: React.FC = () => {
   async function onSubmit(values: SignInFormData) {
     setLoading(true);
     try {
-      const response = await fetch("https://bounty.33solutions.dev/auth/login", {
+      const response = await fetch("http://localhost:5001/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

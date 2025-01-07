@@ -64,7 +64,7 @@ const CampaignDetail = () => {
         }
 
         const response = await fetch(
-          `https://bounty.33solutions.dev/api/campaigns/${id}`,
+          `http://localhost:5001/api/campaigns/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
