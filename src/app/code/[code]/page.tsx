@@ -26,11 +26,22 @@ function page() {
     console.log(response);
   };
 
-  useEffect(() => {
-    getQrDetailes();
-  }, []);
+  const registerCustomer = async ()=>{
+    // Call an API to register customer at route
+    // http://localhost:5001/external/registerCustomer
+  }
 
-  return <div>Heelo</div>;
+  const submitForm = async () => {
+    await registerCustomer();
+    await getQrDetailes();
+  }
+
+
+  return <div>
+    <form onSubmit={submitForm} action="">
+      {/* Create a form to take in Customer Details and call an API to register customer before proceeding To next Stage */}
+    </form>
+  </div>;
 }
 
 export default page;
