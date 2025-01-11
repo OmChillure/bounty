@@ -266,7 +266,7 @@ const VideoTask = () => {
               <Alert className="bg-green-900/50 border-green-500 text-green-300">
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription>
-                  Congratulations! You've completed all videos.
+                  Congratulations! You have completed all videos.
                 </AlertDescription>
               </Alert>
             )}
