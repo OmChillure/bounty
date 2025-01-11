@@ -2,7 +2,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import JSZip from "jszip";
+import qrcode from "qrcode";
+import { saveAs } from "file-saver";
+import { z } from "zod";
 
 interface Campaign {
   id: string;
@@ -53,6 +57,46 @@ const CampaignDetail = () => {
     // Add more rows as per your data
   ];
 
+  const getCampaignQrs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:5001/api/code/get-campaign-codes`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ campaignId: id }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch campaign QRs");
+      }
+      const zip = new JSZip();
+      const data = await response.json();
+      const urls = data.codes.map(async (codeObj) => {
+        const qrDataUrl = await qrcode.toDataURL(codeObj.url);
+        const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+        zip.file(`${codeObj.code}.png`, base64Data, { base64: true });
+      });
+      await Promise.all(urls);
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, "campaign_qrcodes.zip");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "An error occurred while fetching the campaign QRs");
+    }
+  };
+
   useEffect(() => {
     const fetchCampaign = async () => {
       try {
@@ -94,7 +138,9 @@ const CampaignDetail = () => {
           zipUrl: campaignData.zipUrl,
         });
       } catch (err: any) {
-        setError(err.message || "An error occurred while fetching the campaign");
+        setError(
+          err.message || "An error occurred while fetching the campaign"
+        );
       } finally {
         setIsLoading(false);
       }
@@ -137,8 +183,11 @@ const CampaignDetail = () => {
       <p className="mt-2">Tags: {campaign.tags.join(", ")}</p>
       <p className="mt-2">Status: {campaign.status}</p>
       <p className="mt-2">Reward Type: {campaign.reward_type}</p>
-      <p className="mt-2">Created At: {new Date(campaign.createdAt).toLocaleDateString()}</p>
+      <p className="mt-2">
+        Created At: {new Date(campaign.createdAt).toLocaleDateString()}
+      </p>
       <p className="mt-2">Trigger Text: {campaign.triggerText}</p>
+      <button onClick={getCampaignQrs}>Get QR Codes</button>
       {/* <p className="mt-2">Publish Pin: {campaign.publishPin}</p>
       {campaign.zipUrl && (
         <a href={campaign.zipUrl} target="_blank" rel="noopener noreferrer" className="mt-4 text-blue-500 underline">
@@ -151,7 +200,9 @@ const CampaignDetail = () => {
           <button
             onClick={() => setActiveTab("insights")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "insights" ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
+              activeTab === "insights"
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:text-white"
             }`}
           >
             Insights
@@ -159,7 +210,9 @@ const CampaignDetail = () => {
           <button
             onClick={() => setActiveTab("payout")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "payout" ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
+              activeTab === "payout"
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:text-white"
             }`}
           >
             Payout Config
@@ -167,7 +220,9 @@ const CampaignDetail = () => {
           <button
             onClick={() => setActiveTab("data")}
             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              activeTab === "data" ? "bg-blue-600 text-white" : "text-gray-300 hover:text-white"
+              activeTab === "data"
+                ? "bg-blue-600 text-white"
+                : "text-gray-300 hover:text-white"
             }`}
           >
             Data
@@ -177,13 +232,20 @@ const CampaignDetail = () => {
         {activeTab === "insights" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {insightsData.map((item, index) => (
-              <div key={index} className="p-6 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div
+                key={index}
+                className="p-6 bg-gray-800/50 rounded-lg border border-gray-700"
+              >
                 <h3 className="text-sm text-gray-400">{item.title}</h3>
                 <div className="flex items-baseline mt-2 space-x-2">
-                  <span className="text-2xl font-semibold text-white">{item.value}</span>
+                  <span className="text-2xl font-semibold text-white">
+                    {item.value}
+                  </span>
                   <span
                     className={`text-sm ${
-                      item.change.startsWith("+") ? "text-green-400" : "text-red-400"
+                      item.change.startsWith("+")
+                        ? "text-green-400"
+                        : "text-red-400"
                     }`}
                   >
                     {item.change}
@@ -200,9 +262,15 @@ const CampaignDetail = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-700">
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Payment Method</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Status</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Transaction Fee</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Payment Method
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Status
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Transaction Fee
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,14 +306,30 @@ const CampaignDetail = () => {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-700">
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">WhatsApp Number</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Name</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Phone</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Pincode</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">State</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Address</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">City</th>
-                    <th className="text-left p-4 text-sm font-medium text-gray-400">Landmark</th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      WhatsApp Number
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Name
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Phone
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Pincode
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      State
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Address
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      City
+                    </th>
+                    <th className="text-left p-4 text-sm font-medium text-gray-400">
+                      Landmark
+                    </th>
                   </tr>
                 </thead>
                 <tbody>

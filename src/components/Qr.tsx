@@ -173,6 +173,7 @@ export default function CreateCampaignForm() {
                   <SelectItem value="award" className="text-gray-100">Award</SelectItem>
                   <SelectItem value="digital_activation" className="text-gray-100">Digital Activation</SelectItem>
                   <SelectItem value="social_media" className="text-gray-100">Social Media</SelectItem>
+                  <SelectItem value="video" className="text-gray-100">Video</SelectItem>
                   <SelectItem value="location_sharing" className="text-gray-100">Location Sharing</SelectItem>
                 </SelectContent>
               </Select>
