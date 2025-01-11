@@ -34,7 +34,7 @@ const CampaignList = () => {
           return;
         }
 
-        const response = await fetch("https://bounty.33solutions.dev/api/campaigns", {
+        const response = await fetch("http://localhost:5001/api/campaigns", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

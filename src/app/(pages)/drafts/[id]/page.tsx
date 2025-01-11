@@ -37,7 +37,7 @@ export default function PayoutPage() {
         }
 
         const response = await fetch(
-          `https://bounty.33solutions.dev/api/campaigns/${id}`,
+          `http://localhost:5001/api/campaigns/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ export default function PayoutPage() {
       console.log("Publishing campaign with pin:", payoutPin)
 
       const response = await fetch(
-        `https://bounty.33solutions.dev/api/campaigns/${id}/publish`,
+        `http://localhost:5001/api/campaigns/${id}/publish`,
         {
           method: "POST",
           headers: {
