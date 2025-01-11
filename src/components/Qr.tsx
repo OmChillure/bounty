@@ -278,7 +278,7 @@ export default function CreateCampaignForm() {
             />
           </div>
 
-          {formData.campaignType === 'digital-activation' && (
+          {formData.campaignType === 'digital_activation' && (
             <div className="space-y-2">
               <Button
                 type="button"

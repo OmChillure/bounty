@@ -1,11 +1,13 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import React, { useState, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-function page() {
+export default function Page() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -14,8 +16,7 @@ function page() {
     upiId: "",
   });
 
-  const getQrDetailes = async () => {
-
+  const getQrDetails = async () => {
     const bountyCode = window.location.pathname.split("/").pop();
     const data = await fetch(
       `http://localhost:5001/api/code/${bountyCode}`,
@@ -37,7 +38,7 @@ function page() {
 
   const registerCustomer = async () => {
     try {
-      const response = await fetch("http://localhost:5001/external/registerCustomer", {
+      const response = await fetch("http://localhost:5001/external/registercustomer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -65,63 +66,75 @@ function page() {
     }));
   };
 
-  const submitForm = async () => {
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
     await registerCustomer();
-    await getQrDetailes();
-  }
+    await getQrDetails();
+  };
 
-
-  return <div>
-    <form onSubmit={submitForm} action="">
-    <div>
-          <Label htmlFor="name">Name</Label>
-          <Input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            type="tel"
-            id="phoneNumber"
-            name="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="upiId">UPI ID</Label>
-          <Input
-            type="text"
-            id="upiId"
-            name="upiId"
-            value={formData.upiId}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <Button type="submit" className="w-full">
-          Register and Proceed
-        </Button>
-    </form>
-  </div>;
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 text-white">
+      <Card className="w-full max-w-lg border-gray-700 bg-gray-700/20">
+        <CardHeader>
+          <CardTitle className="text-2xl">Customer Registration</CardTitle>
+          <CardDescription>Please fill in your details to proceed</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                type="tel"
+                id="phoneNumber"
+                name="phoneNumber"
+                value={formData.phoneNumber}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your phone number"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your email address"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="upiId">UPI ID</Label>
+              <Input
+                type="text"
+                id="upiId"
+                name="upiId"
+                value={formData.upiId}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your UPI ID"
+              />
+            </div>
+            <Button type="submit" className="w-full mt-6 bg-black">
+              Register and Proceed
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
-
-export default page;
