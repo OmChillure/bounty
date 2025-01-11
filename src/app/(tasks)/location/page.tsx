@@ -4,7 +4,7 @@ import { MapPin, CheckCircle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LocationTaskProps {
-  onComplete: () => void;
+  onComplete: any ;
 }
 
 const LocationTask = ({ onComplete }: LocationTaskProps) => {
