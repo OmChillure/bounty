@@ -81,7 +81,7 @@ const VideoTask = () => {
       setIsSubmitting(true)
       setFormError('')
 
-      const response = await fetch('http://localhost:5001/api/code/complete-task', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/code/complete-task`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -298,7 +298,7 @@ const VideoTask = () => {
           <div className="space-y-4">
             <Alert className="bg-green-900/50 border-green-500">
               <AlertDescription className="text-green-300">
-                Payment has been successfully processed to your UPI ID: {formData.upiId}
+                Payment has been successfully processed to your UPI ID: {formData.upiId}. It will sent to your account within 60 minutes.
               </AlertDescription>
             </Alert>
             

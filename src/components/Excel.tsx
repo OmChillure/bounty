@@ -111,7 +111,7 @@ export default function CreateExcelCampaign() {
       }
 
       const response = await fetch(
-        "http://localhost:5001/api/campaigns/create",
+        `${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/campaigns/create`,
         {
           method: "POST",
           headers: {

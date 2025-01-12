@@ -40,7 +40,7 @@ export default function PayoutPage() {
         }
 
         const response = await fetch(
-          `http://localhost:5001/api/campaigns/${id}`,
+          `${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/campaigns/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ export default function PayoutPage() {
       }
 
       const response = await fetch(
-        `http://localhost:5001/api/code/get-campaign-codes`,
+        `${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/code/get-campaign-codes`,
         {
           method: "POST",
           headers: {
@@ -146,7 +146,7 @@ export default function PayoutPage() {
       }
 
       const response = await fetch(
-        `http://localhost:5001/api/campaigns/${id}/publish`,
+        `${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/campaigns/${id}/publish`,
         {
           method: "POST",
           headers: {

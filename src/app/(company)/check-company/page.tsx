@@ -23,7 +23,7 @@ const Page = () => {
         }
 
         setStatus('Verifying company information...');
-        const response = await fetch('http://localhost:5001/api/companies', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/companies`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

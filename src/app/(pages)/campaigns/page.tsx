@@ -34,7 +34,7 @@ const CampaignList = () => {
           return;
         }
 
-        const response = await fetch("http://localhost:5001/api/campaigns", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/campaigns`, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

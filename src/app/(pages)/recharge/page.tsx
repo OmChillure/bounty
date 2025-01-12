@@ -103,7 +103,7 @@ const PricingPlans = () => {
         ...(planName === 'Elite Pro' && { whatsappNumber })
       };
 
-      const response = await fetch('http://localhost:5001/api/payments/recharge', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/payments/recharge`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
