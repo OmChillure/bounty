@@ -72,7 +72,7 @@ const Signup = () => {
 
       let response: Response;
       try {
-        response = await fetch("http://localhost:5001/auth/signup", {
+        response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/auth/signup`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

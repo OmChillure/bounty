@@ -19,7 +19,7 @@ export default function Page() {
   const getQrDetails = async () => {
     const bountyCode = window.location.pathname.split("/").pop();
     const data = await fetch(
-      `http://localhost:5001/api/code/${bountyCode}`,
+      `${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/code/${bountyCode}`,
       {
         method: "GET",
         headers: {
@@ -38,7 +38,7 @@ export default function Page() {
 
   const registerCustomer = async () => {
     try {
-      const response = await fetch("http://localhost:5001/external/registercustomer", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/external/registercustomer`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

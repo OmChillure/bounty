@@ -113,7 +113,7 @@ const NewCompanyForm = () => {
     console.log(`Authorization Header: Bearer ${token}`);
   
     try {
-      const response = await fetch('http://localhost:5001/api/companies', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BOUNTY_URL}/api/companies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
