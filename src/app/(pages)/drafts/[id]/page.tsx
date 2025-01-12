@@ -7,6 +7,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import JSZip from "jszip";
+import qrcode from "qrcode";
+import { saveAs } from "file-saver";
 
 interface Campaign {
   name: string
@@ -14,6 +17,7 @@ interface Campaign {
   reward_type: string
   zipUrl: string
 }
+
 export default function PayoutPage() {
   const router = useRouter()
   const { id } = useParams()
@@ -24,7 +28,6 @@ export default function PayoutPage() {
   const [isPinCorrect, setIsPinCorrect] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
-  const [isPublished, setIsPublished] = useState(false)
 
   useEffect(() => {
     const fetchCampaign = async () => {
@@ -73,6 +76,46 @@ export default function PayoutPage() {
     }
   }, [id, router])
 
+  const getCampaignQrs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        router.push("/sign-in");
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:5001/api/code/get-campaign-codes`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ campaignId: id }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch campaign QRs");
+      }
+      const zip = new JSZip();
+      const data = await response.json();
+      const urls = data.codes.map(async (codeObj: any) => {
+        const qrDataUrl = await qrcode.toDataURL(codeObj.url);
+        const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
+        zip.file(`${codeObj.code}.png`, base64Data, { base64: true });
+      });
+      await Promise.all(urls);
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      saveAs(zipBlob, "campaign_qrcodes.zip");
+    } catch (err) {
+      console.error(err);
+      alert(err || "An error occurred while fetching the campaign QRs");
+    }
+  };
+
   const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -102,8 +145,6 @@ export default function PayoutPage() {
         return
       }
 
-      console.log("Publishing campaign with pin:", payoutPin)
-
       const response = await fetch(
         `http://localhost:5001/api/campaigns/${id}/publish`,
         {
@@ -116,21 +157,17 @@ export default function PayoutPage() {
         }
       )
 
-      console.log("Publish response status:", response.status)
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()))
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => null)
-        console.error("Publish error response:", errorData)
         throw new Error(
           errorData?.message || 
           `Publishing failed with status: ${response.status}`
         )
       }
 
-      const data = await response.json()
-      console.log("Publish success response:", data) 
-      setIsPublished(true)
+      await response.json()
+      // Remove isPublished state and directly call getCampaignQrs
+      getCampaignQrs()
     } catch (err: any) {
       console.error("Publish error:", err)
       setError(err.message || "An error occurred while publishing the campaign")
@@ -138,7 +175,6 @@ export default function PayoutPage() {
       setIsPublishing(false)
     }
   }
-
 
   if (isLoading) {
     return (
@@ -177,11 +213,11 @@ export default function PayoutPage() {
         <Card className="bg-[#1e2128] border-[#2a2d35] shadow-xl">
           <CardHeader>
             <CardTitle className="text-gray-200">
-              {isPinCorrect ? "Publish and Download Campaign Files" : "Enter Payout Pin"}
+              {isPinCorrect ? "Publish Campaign Files" : "Enter Payout Pin"}
             </CardTitle>
             <CardDescription className="text-gray-400">
               {isPinCorrect
-                ? "Please publish your campaign before downloading"
+                ? "Click publish to generate and download your campaign files"
                 : "Please enter the payout pin to access campaign files"}
             </CardDescription>
           </CardHeader>
@@ -228,51 +264,23 @@ export default function PayoutPage() {
                   </AlertDescription>
                 </Alert>
 
-                {!isPublished ? (
-                  <Button
-                    onClick={handlePublish}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-                    disabled={isPublishing}
-                  >
-                    {isPublishing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Publishing...
-                      </>
-                    ) : (
-                      "Publish Campaign"
-                    )}
-                  </Button>
-                ) : campaign.zipUrl ? (
-                  <div className="text-center">
-                    <Alert className="bg-green-900/20 border-green-800 mb-4">
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      <AlertTitle className="text-green-400">Published!</AlertTitle>
-                      <AlertDescription className="text-green-300">
-                        Your campaign has been published successfully.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    <Button
-                      asChild
-                      size="lg"
-                      className="mt-4 bg-blue-600 hover:bg-blue-700"
-                    >
-                      <a
-                        href={campaign.zipUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center"
-                      >
-                        <Download className="mr-2 h-5 w-5" />
-                        Download Campaign Files
-                      </a>
-                    </Button>
-                    <p className="mt-2 text-sm text-gray-400">
-                      Click the button above to download your files
-                    </p>
-                  </div>
-                ) : null}
+                <Button
+                  onClick={handlePublish}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Publishing and Downloading...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-5 w-5" />
+                      Download Campaign Files
+                    </>
+                  )}
+                </Button>
               </div>
             )}
           </CardContent>

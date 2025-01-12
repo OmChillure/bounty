@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { CheckCircle, PlayCircle, PauseCircle, RotateCw, Volume2, Volume1, VolumeX } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 const videos = [
   {
@@ -32,10 +33,10 @@ const VideoTask = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showCompletionForm, setShowCompletionForm] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false)
   
-  // Form state initialized with code from URL
   const [formData, setFormData] = useState({
-    code: code || '', // Pre-fill code from URL
+    code: code || '',
     name: '',
     email: '',
     phoneNo: '',
@@ -106,7 +107,19 @@ const VideoTask = () => {
 
       setCompletedVideos(prev => [...prev, currentVideo.id])
       setShowCompletionForm(false)
-      
+      setShowSuccessDialog(true)
+
+      // toast({
+      //   variant: "default",
+      //   className: "bg-green-600 text-white border-none",
+      //   description: (
+      //     <div className="flex items-center gap-2">
+      //       <CheckCircle className="h-5 w-5" />
+      //       <span>Payment successfully sent to {formData.upiId}</span>
+      //     </div>
+      //   ),
+      //   duration: 5000, // Toast will be visible for 5 seconds
+      // })
       if (completedVideos.length + 1 === videos.length) {
         return
       }
@@ -176,7 +189,6 @@ const VideoTask = () => {
 
   const allVideosCompleted = completedVideos.length === videos.length
 
-  // If no code is provided, show an error
   if (!code) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
@@ -274,10 +286,36 @@ const VideoTask = () => {
         </CardContent>
       </Card>
 
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="bg-gray-800 text-white border border-gray-700/10">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle className="h-6 w-6 text-green-500" />
+              Payment Successful
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <Alert className="bg-green-900/50 border-green-500">
+              <AlertDescription className="text-green-300">
+                Payment has been successfully processed to your UPI ID: {formData.upiId}
+              </AlertDescription>
+            </Alert>
+            
+            <Button 
+              className="w-full bg-green-600 hover:bg-green-700"
+              onClick={() => setShowSuccessDialog(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={showCompletionForm} onOpenChange={setShowCompletionForm}>
         <DialogContent className="bg-gray-800 text-white border border-gray-700/10">
           <DialogHeader>
-            <DialogTitle>Complete Your Task</DialogTitle>
+            <DialogTitle>Please fill the form to get the details.</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -345,7 +383,7 @@ const VideoTask = () => {
             </div>
 
             <Button 
-              className="w-full"
+              className="w-full bg-black"
               onClick={handleFormSubmit}
               disabled={isSubmitting}
             >

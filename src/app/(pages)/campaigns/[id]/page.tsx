@@ -83,7 +83,7 @@ const CampaignDetail = () => {
       }
       const zip = new JSZip();
       const data = await response.json();
-      const urls = data.codes.map(async (codeObj) => {
+      const urls = data.codes.map(async (codeObj: any) => {
         const qrDataUrl = await qrcode.toDataURL(codeObj.url);
         const base64Data = qrDataUrl.replace(/^data:image\/png;base64,/, "");
         zip.file(`${codeObj.code}.png`, base64Data, { base64: true });
@@ -93,7 +93,7 @@ const CampaignDetail = () => {
       saveAs(zipBlob, "campaign_qrcodes.zip");
     } catch (err) {
       console.error(err);
-      alert(err.message || "An error occurred while fetching the campaign QRs");
+      alert(err || "An error occurred while fetching the campaign QRs");
     }
   };
 
